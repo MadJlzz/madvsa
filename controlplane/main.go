@@ -40,5 +40,13 @@ func triggerScanHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Println("should start here a new container/pod that is running the scan of the given image")
+
+	cs := NewContainerService("unix:///var/run/docker.sock")
+	if err := cs.ScanContainer(r.Context(), img); err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	_, _ = fmt.Fprintf(w, "triggering new scan for image %s\n", img)
 }
