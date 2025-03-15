@@ -7,6 +7,10 @@ import (
 	"github.com/docker/docker/client"
 )
 
+type ImageScanner interface {
+	Scan(ctx context.Context, image string) error
+}
+
 type containerService struct {
 	cli *client.Client
 }
@@ -21,7 +25,7 @@ func NewContainerService(socketPath string) *containerService {
 	}
 }
 
-func (cs *containerService) ScanContainer(ctx context.Context, image string) error {
+func (cs *containerService) Scan(ctx context.Context, image string) error {
 
 	resp, err := cs.cli.ContainerCreate(ctx, &container.Config{
 		Cmd:   strslice.StrSlice{"--image", image},
@@ -29,11 +33,11 @@ func (cs *containerService) ScanContainer(ctx context.Context, image string) err
 	}, nil, nil, nil, "testdju")
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	if err = cs.cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
-		panic(err)
+		return err
 	}
 
 	return nil
