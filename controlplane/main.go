@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"log"
+	"log/slog"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -13,13 +14,18 @@ func main() {
 	mr.Use(middleware.Logger)
 	mr.Use(middleware.Recoverer)
 
+	cs := NewContainerService("unix:///var/run/docker.sock")
+	l := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{}))
+
+	sh := &scanHandler{is: cs, log: l}
+
 	// API versioned routes
 	mr.Route("/api/v1", func(r chi.Router) {
 
 		r.Get("/health", healthHandler)
 
 		r.Route("/scans", func(r chi.Router) {
-			r.Post("/trigger", triggerScanHandler)
+			r.Post("/trigger", Make(sh.triggerScanHandler))
 		})
 
 	})
@@ -27,18 +33,4 @@ func main() {
 	if err := http.ListenAndServe(":3000", mr); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func healthHandler(w http.ResponseWriter, r *http.Request) {
-	_, _ = fmt.Fprintln(w, "ok")
-}
-
-func triggerScanHandler(w http.ResponseWriter, r *http.Request) {
-	img := r.URL.Query().Get("img")
-	if img == "" {
-		http.Error(w, "please provide a valid image name", http.StatusBadRequest)
-		return
-	}
-	log.Println("should start here a new container/pod that is running the scan of the given image")
-	_, _ = fmt.Fprintf(w, "triggering new scan for image %s\n", img)
 }
