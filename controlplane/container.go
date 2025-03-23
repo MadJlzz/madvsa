@@ -11,27 +11,25 @@ type ImageScanner interface {
 	Scan(ctx context.Context, image string) error
 }
 
-type containerService struct {
+type ContainerService struct {
 	cli *client.Client
 }
 
-func NewContainerService(socketPath string) *containerService {
+func NewContainerService(socketPath string) *ContainerService {
 	conn, err := client.NewClientWithOpts(client.WithHost(socketPath), client.WithAPIVersionNegotiation())
 	if err != nil {
 		panic(err)
 	}
-	return &containerService{
+	return &ContainerService{
 		cli: conn,
 	}
 }
 
-func (cs *containerService) Scan(ctx context.Context, image string) error {
-
+func (cs *ContainerService) Scan(ctx context.Context, image string) error {
 	resp, err := cs.cli.ContainerCreate(ctx, &container.Config{
 		Cmd:   strslice.StrSlice{"--image", image},
 		Image: "madvsa-trivy:latest",
 	}, nil, nil, nil, "testdju")
-
 	if err != nil {
 		return err
 	}
@@ -39,6 +37,5 @@ func (cs *containerService) Scan(ctx context.Context, image string) error {
 	if err = cs.cli.ContainerStart(ctx, resp.ID, container.StartOptions{}); err != nil {
 		return err
 	}
-
 	return nil
 }

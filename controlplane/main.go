@@ -25,7 +25,7 @@ func main() {
 		r.Get("/health", healthHandler)
 
 		r.Route("/scans", func(r chi.Router) {
-			r.Post("/trigger", sh.triggerScanHandler)
+			r.Post("/trigger", Make(sh.triggerScanHandler))
 		})
 
 	})
