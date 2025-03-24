@@ -53,7 +53,7 @@ func main() {
 
 		r.Route("/scanner", func(r chi.Router) {
 			// Not sure that's the best way to support multiple scanner, but for now it's okay.
-			r.Post("/{scanner:^(trivy)$}/trigger", Make(sh.triggerScanHandler))
+			r.Post("/{scanner:^(trivy|grype)$}/trigger", Make(sh.triggerScanHandler))
 		})
 
 	})
