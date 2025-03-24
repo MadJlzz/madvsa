@@ -80,6 +80,6 @@ func (h *scanHandler) triggerScanHandler(w http.ResponseWriter, r *http.Request)
 		return err
 	}
 
-	_, _ = fmt.Fprintf(w, "triggering new scan for image %s\n", img)
+	_, _ = fmt.Fprintf(w, "triggering new scan using %s scanner for image %s\n", s, img)
 	return nil
 }
