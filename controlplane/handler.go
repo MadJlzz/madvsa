@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/go-chi/chi/v5"
 	"log/slog"
 	"net/http"
 )
@@ -64,6 +65,9 @@ type scanHandler struct {
 }
 
 func (h *scanHandler) triggerScanHandler(w http.ResponseWriter, r *http.Request) error {
+	s := chi.URLParam(r, "scanner")
+	h.log.Info("using scanner", "scanner", s)
+
 	img := r.URL.Query().Get("img")
 	if img == "" {
 		return InvalidRequest(map[string]string{
@@ -72,7 +76,7 @@ func (h *scanHandler) triggerScanHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	h.log.Info("should start here a new container/pod that is running the scan of the given image")
-	if err := h.is.Scan(r.Context(), img); err != nil {
+	if err := h.is.Scan(r.Context(), s, img); err != nil {
 		return err
 	}
 

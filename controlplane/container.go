@@ -8,11 +8,12 @@ import (
 )
 
 type ImageScanner interface {
-	Scan(ctx context.Context, image string) error
+	Scan(ctx context.Context, scanner string, image string) error
 }
 
 type ContainerService struct {
-	cli *client.Client
+	cli         *client.Client
+	scannerOpts map[string]*container.Config
 }
 
 func NewContainerService(socketPath string) *ContainerService {
@@ -20,16 +21,26 @@ func NewContainerService(socketPath string) *ContainerService {
 	if err != nil {
 		panic(err)
 	}
+	// Dirty as fuck, will clean that up later.
+	sOpts := map[string]*container.Config{
+		"trivy": {
+			Cmd:   strslice.StrSlice{"--image"},
+			Image: "madvsa/trivy:latest",
+		},
+	}
 	return &ContainerService{
-		cli: conn,
+		cli:         conn,
+		scannerOpts: sOpts,
 	}
 }
 
-func (cs *ContainerService) Scan(ctx context.Context, image string) error {
-	resp, err := cs.cli.ContainerCreate(ctx, &container.Config{
-		Cmd:   strslice.StrSlice{"--image", image},
-		Image: "madvsa-trivy:latest",
-	}, nil, nil, nil, "testdju")
+func (cs *ContainerService) Scan(ctx context.Context, scanner string, image string) error {
+	// Get the scanner options from it's name, and run that.
+	cCfg := cs.scannerOpts[scanner]
+	cCfg.Cmd = append(cCfg.Cmd, image)
+
+	// Maybe it's a good idea to generate an UUID as an execution ID here for observability.
+	resp, err := cs.cli.ContainerCreate(ctx, cCfg, nil, nil, nil, "")
 	if err != nil {
 		return err
 	}
