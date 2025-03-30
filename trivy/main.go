@@ -13,17 +13,21 @@ import (
 
 var executionId string
 var image string
+var output string
 
 func init() {
 	const (
 		defaultImage     = "docker.io/library/alpine"
 		imageUsage       = "the image to scan"
 		executionIdUsage = "the reference to use for the scan operation"
+		defaultOutput    = "file:///tmp"
+		outputUsage      = "the path where to store the file at. (e.g. file:///path/to/scan or s3://path/to/bucket, ...)"
 	)
 	defaultExecutionId := time.Now().Format(time.RFC3339)
 	flag.StringVar(&image, "image", defaultImage, imageUsage)
 	flag.StringVar(&image, "i", defaultImage, imageUsage+" (shorthand)")
 	flag.StringVar(&executionId, "id", defaultExecutionId, executionIdUsage)
+	flag.StringVar(&output, "output", defaultOutput, outputUsage+" (shorthand)")
 }
 
 type TrivyScanner struct {
@@ -40,7 +44,7 @@ func NewTrivyScanner() (*TrivyScanner, error) {
 	}, err
 }
 
-func (t *TrivyScanner) sScan(ctx context.Context, image string) (*bytes.Buffer, error) {
+func (t *TrivyScanner) Scan(ctx context.Context, image string) (*bytes.Buffer, error) {
 	tCtx, cancel := context.WithTimeout(ctx, 1*time.Minute)
 	defer cancel()
 
@@ -65,7 +69,17 @@ func main() {
 
 	b, err := s.Scan(context.Background(), image)
 	if err != nil {
-		log.Printf("scan: %s\n", err)
+		log.Fatalf("failed to scan: %s\n", err)
+	}
+
+	sd, err := NewStorageDestination(output, executionId)
+	if err != nil {
+		log.Fatalf("wrong storage destination: %s\n", err)
+	}
+
+	err = Store(b, sd)
+	if err != nil {
+		log.Fatalf("failed to store: %s\n", err)
 	}
 
 	fmt.Println(b.String())

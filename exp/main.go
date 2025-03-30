@@ -1,29 +1,33 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"github.com/docker/docker/api/types/container"
-	"github.com/docker/docker/client"
+	"strings"
 )
 
 func main() {
-	//cli, err := client.NewClientWithOpts(client.WithHost("unix:///run/user/1000/podman/podman.sock"), client.WithAPIVersionNegotiation())
-	cli, err := client.NewClientWithOpts(client.WithHost("unix:///run/docker.sock"), client.WithAPIVersionNegotiation())
-	if err != nil {
-		panic(err)
-	}
-
-	// List running containers
-	containers, err := cli.ContainerList(context.Background(), container.ListOptions{})
-	if err != nil {
-		panic(err)
-	}
-
-	for _, c := range containers {
-		fmt.Println("Container ID:", c.ID, "Image:", c.Image)
-	}
+	destination := "file:///tmp/scans"
+	d, ok := strings.CutPrefix(destination, "file://")
+	fmt.Println(d, ok)
 }
+
+//func main() {
+//	//cli, err := client.NewClientWithOpts(client.WithHost("unix:///run/user/1000/podman/podman.sock"), client.WithAPIVersionNegotiation())
+//	cli, err := client.NewClientWithOpts(client.WithHost("unix:///run/docker.sock"), client.WithAPIVersionNegotiation())
+//	if err != nil {
+//		panic(err)
+//	}
+//
+//	// List running containers
+//	containers, err := cli.ContainerList(context.Background(), container.ListOptions{})
+//	if err != nil {
+//		panic(err)
+//	}
+//
+//	for _, c := range containers {
+//		fmt.Println("Container ID:", c.ID, "Image:", c.Image)
+//	}
+//}
 
 // KO
 //func main() {
