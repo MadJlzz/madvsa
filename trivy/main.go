@@ -5,7 +5,9 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/MadJlzz/madvsa/trivy/internal/pkg"
 	"log"
+	"net/url"
 	"os"
 	"os/exec"
 	"time"
@@ -60,11 +62,22 @@ func (t *TrivyScanner) Scan(ctx context.Context, image string) (*bytes.Buffer, e
 
 func main() {
 	flag.Parse()
-	fmt.Println(image)
+
+	ctx := context.Background()
+
+	u, err := url.Parse(output)
+	if err != nil {
+		log.Fatalf("failed to parse output: %s\n", err)
+	}
 
 	s, err := NewTrivyScanner()
 	if err != nil {
 		log.Fatalf("new trivy scanner: %s\n", err)
+	}
+
+	storer, err := pkg.DefaultStoreFactory().GetStorer(u)
+	if err != nil {
+		log.Fatalf("failed to init storer: %s\n", err)
 	}
 
 	b, err := s.Scan(context.Background(), image)
@@ -72,15 +85,8 @@ func main() {
 		log.Fatalf("failed to scan: %s\n", err)
 	}
 
-	sd, err := NewStorageDestination(output, executionId)
-	if err != nil {
-		log.Fatalf("wrong storage destination: %s\n", err)
-	}
-
-	err = Store(b, sd)
+	err = storer.Store(ctx, b, u)
 	if err != nil {
 		log.Fatalf("failed to store: %s\n", err)
 	}
-
-	fmt.Println(b.String())
 }
