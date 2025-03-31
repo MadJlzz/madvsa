@@ -75,9 +75,9 @@ func main() {
 		log.Fatalf("new trivy scanner: %s\n", err)
 	}
 
-	storer, err := pkg.DefaultStoreFactory().GetStorer(u)
+	storerFactory, err := pkg.NewStorerFactory(ctx, u)
 	if err != nil {
-		log.Fatalf("failed to init storer: %s\n", err)
+		log.Fatalf("failed to init storer factory: %s\n", err)
 	}
 
 	b, err := s.Scan(context.Background(), image)
@@ -85,7 +85,7 @@ func main() {
 		log.Fatalf("failed to scan: %s\n", err)
 	}
 
-	err = storer.Store(ctx, b, u)
+	err = storerFactory.Store(ctx, b, u)
 	if err != nil {
 		log.Fatalf("failed to store: %s\n", err)
 	}

@@ -8,28 +8,24 @@ import (
 	"log"
 	"net/url"
 	"strings"
-	"sync"
 )
 
-func init() {
-	DefaultStoreFactory().Register("gs", &GCS{})
+type GoogleBlobStorage struct {
+	cli *storage.Client
 }
 
-type GCS struct {
-	init sync.Once
-	cli  *storage.Client
+func NewGoogleBlobStorage(ctx context.Context) *GoogleBlobStorage {
+	storageClient, err := storage.NewClient(ctx)
+	if err != nil {
+		log.Fatalf("failed to gcs client: %s\n", err)
+	}
+	return &GoogleBlobStorage{
+		cli: storageClient,
+	}
 }
 
-func (s *GCS) Store(ctx context.Context, r io.Reader, destination *url.URL) error {
-	s.init.Do(func() {
-		cli, err := storage.NewClient(ctx)
-		if err != nil {
-			log.Fatalf("failed to create GCS client: %s", err)
-		}
-		s.cli = cli
-	})
-
-	bh := s.cli.Bucket(destination.Host)
+func (gcs *GoogleBlobStorage) Store(ctx context.Context, r io.Reader, destination *url.URL) error {
+	bh := gcs.cli.Bucket(destination.Host)
 	oh := bh.Object(strings.TrimPrefix(destination.Path, "/"))
 
 	wc := oh.NewWriter(ctx)

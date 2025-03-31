@@ -11,24 +11,23 @@ type Storer interface {
 	Store(ctx context.Context, r io.Reader, destination *url.URL) error
 }
 
-type StoreFactory struct {
-	sm map[string]Storer
+type StorerFactory struct {
+	s Storer
 }
 
-var defaultStoreFactory = &StoreFactory{sm: map[string]Storer{}}
-
-func DefaultStoreFactory() *StoreFactory {
-	return defaultStoreFactory
-}
-
-func (sf *StoreFactory) Register(scheme string, storer Storer) {
-	sf.sm[scheme] = storer
-}
-
-func (sf *StoreFactory) GetStorer(url *url.URL) (Storer, error) {
-	s, ok := sf.sm[url.Scheme]
-	if !ok {
-		return nil, fmt.Errorf("unsupported scheme %s", url.Scheme)
+func NewStorerFactory(ctx context.Context, url *url.URL) (*StorerFactory, error) {
+	var sf StorerFactory
+	switch url.Scheme {
+	case "file":
+		sf.s = &FileStorage{}
+	case "gcs":
+		sf.s = NewGoogleBlobStorage(ctx)
+	default:
+		return nil, fmt.Errorf("unsupported storage scheme: %s", url.Scheme)
 	}
-	return s, nil
+	return &sf, nil
+}
+
+func (sf *StorerFactory) Store(ctx context.Context, r io.Reader, destination *url.URL) error {
+	return sf.s.Store(ctx, r, destination)
 }

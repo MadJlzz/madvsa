@@ -8,10 +8,6 @@ import (
 	"path/filepath"
 )
 
-func init() {
-	DefaultStoreFactory().Register("file", &FileStorage{})
-}
-
 type FileStorage struct{}
 
 func (f *FileStorage) Store(_ context.Context, r io.Reader, destination *url.URL) error {
