@@ -1,15 +1,12 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"flag"
-	"fmt"
-	"github.com/MadJlzz/madvsa/trivy/internal/pkg"
+	"github.com/MadJlzz/madvsa/scanner/internal/pkg/storage"
+	"github.com/MadJlzz/madvsa/scanner/internal/trivy"
 	"log"
 	"net/url"
-	"os"
-	"os/exec"
 	"time"
 )
 
@@ -32,34 +29,6 @@ func init() {
 	flag.StringVar(&output, "output", defaultOutput, outputUsage+" (shorthand)")
 }
 
-type TrivyScanner struct {
-	binaryPath string
-}
-
-func NewTrivyScanner() (*TrivyScanner, error) {
-	path, err := exec.LookPath("trivy")
-	if err != nil {
-		return nil, fmt.Errorf("look path: %w", err)
-	}
-	return &TrivyScanner{
-		binaryPath: path,
-	}, err
-}
-
-func (t *TrivyScanner) Scan(ctx context.Context, image string) (*bytes.Buffer, error) {
-	tCtx, cancel := context.WithTimeout(ctx, 1*time.Minute)
-	defer cancel()
-
-	var buf bytes.Buffer
-
-	cmd := exec.CommandContext(tCtx, t.binaryPath, "image", image)
-	cmd.Stdout = &buf
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
-	return &buf, err
-}
-
 func main() {
 	flag.Parse()
 
@@ -70,12 +39,12 @@ func main() {
 		log.Fatalf("failed to parse output: %s\n", err)
 	}
 
-	s, err := NewTrivyScanner()
+	s, err := trivy.New()
 	if err != nil {
 		log.Fatalf("new trivy scanner: %s\n", err)
 	}
 
-	storerFactory, err := pkg.NewStorerFactory(ctx, u)
+	storerFactory, err := storage.NewStorerFactory(ctx, u)
 	if err != nil {
 		log.Fatalf("failed to init storer factory: %s\n", err)
 	}

@@ -1,4 +1,4 @@
-module github.com/MadJlzz/madvsa/trivy
+module github.com/MadJlzz/madvsa/scanner
 
 go 1.24.0
 

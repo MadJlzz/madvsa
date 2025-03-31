@@ -10,7 +10,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY . .
-RUN CGO_ENABLED=0 go build -o trivyvsa *.go
+RUN CGO_ENABLED=0 go build -o trivyvsa cmd/trivy/main.go
 
 FROM aquasec/trivy:${TRIVY_VERSION} AS trivy
 

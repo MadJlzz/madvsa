@@ -1,4 +1,4 @@
-package pkg
+package storage
 
 import (
 	"cloud.google.com/go/storage"
@@ -17,7 +17,7 @@ type GoogleBlobStorage struct {
 func NewGoogleBlobStorage(ctx context.Context) *GoogleBlobStorage {
 	storageClient, err := storage.NewClient(ctx)
 	if err != nil {
-		log.Fatalf("failed to gcs client: %s\n", err)
+		log.Fatalf("gcs: failed to create storage client: %s\n", err)
 	}
 	return &GoogleBlobStorage{
 		cli: storageClient,
@@ -30,10 +30,10 @@ func (gcs *GoogleBlobStorage) Store(ctx context.Context, r io.Reader, destinatio
 
 	wc := oh.NewWriter(ctx)
 	if _, err := io.Copy(wc, r); err != nil {
-		return fmt.Errorf("io.Copy: %w", err)
+		return fmt.Errorf("gcs: io.Copy: %w", err)
 	}
 	if err := wc.Close(); err != nil {
-		return fmt.Errorf("Writer.Close: %w", err)
+		return fmt.Errorf("gcs: Writer.Close: %w", err)
 	}
 
 	fmt.Println("Successfully wrote test object")
