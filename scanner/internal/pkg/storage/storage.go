@@ -7,6 +7,11 @@ import (
 	"net/url"
 )
 
+const (
+	FileScheme   = "file"
+	GoogleScheme = "gcs"
+)
+
 type Storer interface {
 	Store(ctx context.Context, r io.Reader, destination *url.URL) error
 }
@@ -18,9 +23,9 @@ type StorerFactory struct {
 func NewStorerFactory(ctx context.Context, url *url.URL) (*StorerFactory, error) {
 	var sf StorerFactory
 	switch url.Scheme {
-	case "file":
+	case FileScheme:
 		sf.s = &FileStorage{}
-	case "gcs":
+	case GoogleScheme:
 		sf.s = NewGoogleBlobStorage(ctx)
 	default:
 		return nil, fmt.Errorf("unsupported storage scheme: %s", url.Scheme)
