@@ -60,6 +60,5 @@ func (c *Command) Execute(ctx context.Context) error {
 		return fmt.Errorf("failed to store: %s\n", err)
 	}
 
-	fmt.Println(err)
 	return nil
 }

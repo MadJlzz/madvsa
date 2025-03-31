@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"os"
 	"os/exec"
 	"time"
 )
@@ -31,11 +30,9 @@ func (s *Scanner) Scan(ctx context.Context, image string) (*bytes.Buffer, error)
 
 	cmd := exec.CommandContext(tCtx, s.binaryPath, image)
 	cmd.Stdout = &buf
-	cmd.Stderr = os.Stderr
+	// TODO: if we set Stderr, is doesnt work anymore
+	//cmd.Stderr = os.Stderr
 
 	err := cmd.Run()
-	// No error but the buffer is completely empty ????
-	//fmt.Printf("%s\n", buf.String())
-	//fmt.Println(err)
 	return &buf, err
 }
