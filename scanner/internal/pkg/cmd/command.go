@@ -50,7 +50,7 @@ func (c *Command) Execute(ctx context.Context) error {
 		return fmt.Errorf("failed to init storer factory: %s\n", err)
 	}
 
-	b, err := c.scanner.Scan(context.Background(), *c.args.image)
+	b, err := c.scanner.Scan(ctx, *c.args.image)
 	if err != nil {
 		return fmt.Errorf("failed to scan: %s\n", err)
 	}
@@ -60,5 +60,6 @@ func (c *Command) Execute(ctx context.Context) error {
 		return fmt.Errorf("failed to store: %s\n", err)
 	}
 
+	fmt.Println(err)
 	return nil
 }
