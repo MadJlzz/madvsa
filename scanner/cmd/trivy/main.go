@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/MadJlzz/madvsa/scanner/internal/pkg/cmd"
+	"github.com/MadJlzz/madvsa/scanner/internal/pkg/vuln"
 	"github.com/MadJlzz/madvsa/scanner/internal/trivy"
 	"log"
 )
@@ -10,7 +11,7 @@ import (
 func main() {
 	ctx := context.Background()
 
-	s, err := trivy.New()
+	s, err := vuln.NewScanner(trivy.BinaryName, trivy.Cmd)
 	if err != nil {
 		log.Fatalf("new trivy scanner: %s\n", err)
 	}

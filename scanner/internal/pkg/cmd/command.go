@@ -26,10 +26,10 @@ type args struct {
 
 type Command struct {
 	args    args
-	scanner vuln.Scanner
+	scanner *vuln.Scanner
 }
 
-func NewCommand(scanner vuln.Scanner) *Command {
+func NewCommand(scanner *vuln.Scanner) *Command {
 	return &Command{scanner: scanner, args: args{
 		executionId: flag.String("id", time.Now().Format(time.RFC3339), executionIdUsage),
 		image:       flag.String("image", defaultImage, imageUsage),
