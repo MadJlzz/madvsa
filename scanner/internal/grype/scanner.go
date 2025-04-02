@@ -7,6 +7,7 @@ import (
 
 const BinaryName = "grype"
 
-func Cmd(ctx context.Context, extraArg ...string) *exec.Cmd {
-	return exec.CommandContext(ctx, BinaryName, extraArg...)
+func Cmd(ctx context.Context, image string, extraArgs ...string) *exec.Cmd {
+	args := append([]string{image}, extraArgs...)
+	return exec.CommandContext(ctx, BinaryName, args...)
 }

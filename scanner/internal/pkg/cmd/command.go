@@ -37,7 +37,7 @@ func NewCommand(scanner *vuln.Scanner) *Command {
 	}}
 }
 
-func (c *Command) Execute(ctx context.Context) error {
+func (c *Command) Execute(ctx context.Context, extraArg ...string) error {
 	flag.Parse()
 
 	u, err := url.Parse(*c.args.output)
@@ -50,7 +50,7 @@ func (c *Command) Execute(ctx context.Context) error {
 		return fmt.Errorf("failed to init storer factory: %s\n", err)
 	}
 
-	b, err := c.scanner.Scan(ctx, *c.args.image)
+	b, err := c.scanner.Scan(ctx, *c.args.image, extraArg...)
 	if err != nil {
 		return fmt.Errorf("failed to scan: %s\n", err)
 	}

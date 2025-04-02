@@ -7,7 +7,7 @@ import (
 
 const BinaryName = "trivy"
 
-func Cmd(ctx context.Context, extraArg ...string) *exec.Cmd {
-	args := append([]string{"image"}, extraArg...)
+func Cmd(ctx context.Context, image string, extraArgs ...string) *exec.Cmd {
+	args := append([]string{"image", image}, extraArgs...)
 	return exec.CommandContext(ctx, BinaryName, args...)
 }
