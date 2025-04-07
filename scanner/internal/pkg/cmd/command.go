@@ -23,25 +23,34 @@ type args struct {
 }
 
 type Command struct {
-	args    args
+	args    *args
 	logger  *slog.Logger
 	scanner *vuln.Scanner
 }
 
 func NewCommand(logger *slog.Logger, scanner *vuln.Scanner) *Command {
-	return &Command{scanner: scanner, logger: logger, args: args{
-		image:  flag.String("image", defaultImage, imageUsage),
-		output: flag.String("output", defaultOutput, outputUsage),
-	}}
+	// TODO: something is fully broken here. The values passed from the flag library does not work.
+	return &Command{
+		scanner: scanner,
+		logger:  logger,
+		args: &args{
+			image:  flag.String("image", defaultImage, imageUsage),
+			output: flag.String("output", defaultOutput, outputUsage),
+		}}
 }
 
 func (c *Command) Execute(ctx context.Context) error {
 	flag.Parse()
 
+	c.logger.Info("OK?", "parsed", flag.Parsed(), "args", *c.args)
+	c.logger.Info("hello", "output", *c.args.output, "img", *c.args.image)
+
 	u, err := url.Parse(*c.args.output)
 	if err != nil {
 		return fmt.Errorf("failed to parse output: %s\n", err)
 	}
+
+	c.logger.Info("test", "url", u)
 
 	storerFactory, err := storage.NewStorerFactory(ctx, c.logger, u)
 	if err != nil {
