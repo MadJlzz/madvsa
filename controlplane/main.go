@@ -5,7 +5,6 @@ import (
 	"flag"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"log"
 	"log/slog"
 	"net/http"
 	"os"
@@ -29,6 +28,7 @@ func init() {
 func main() {
 	flag.Parse()
 	mr := chi.NewRouter()
+	//mr.Use(middleware.RequestID)
 	mr.Use(middleware.Logger)
 	mr.Use(middleware.Recoverer)
 
@@ -41,6 +41,7 @@ func main() {
 	default:
 		panic(errors.New("not implemented yet"))
 	}
+	l.Info("preparing scanners backend", "orchestrator", orchestrationMode)
 
 	// Step 1: parse the service mode to know what kind of orchestrator we run.
 	// Step 2:
@@ -52,13 +53,15 @@ func main() {
 		r.Get("/health", healthHandler)
 
 		r.Route("/scanner", func(r chi.Router) {
+			r.Use(middleware.RequestID)
 			// Not sure that's the best way to support multiple scanner, but for now it's okay.
 			r.Post("/{scanner:^(trivy|grype)$}/trigger", Make(sh.triggerScanHandler))
 		})
 
 	})
 
+	l.Info("starting http server", "port", ":3000")
 	if err := http.ListenAndServe(":3000", mr); err != nil {
-		log.Fatal(err)
+		l.Error("http server error", "err", err)
 	}
 }
