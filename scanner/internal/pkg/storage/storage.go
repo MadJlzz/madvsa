@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/url"
 )
 
@@ -17,11 +18,13 @@ type Storer interface {
 }
 
 type StorerFactory struct {
-	s Storer
+	logger *slog.Logger
+	s      Storer
 }
 
-func NewStorerFactory(ctx context.Context, url *url.URL) (*StorerFactory, error) {
+func NewStorerFactory(ctx context.Context, logger *slog.Logger, url *url.URL) (*StorerFactory, error) {
 	var sf StorerFactory
+	sf.logger = logger
 	switch url.Scheme {
 	case FileScheme:
 		sf.s = &FileStorage{}
@@ -34,5 +37,11 @@ func NewStorerFactory(ctx context.Context, url *url.URL) (*StorerFactory, error)
 }
 
 func (sf *StorerFactory) Store(ctx context.Context, r io.Reader, destination *url.URL) error {
+	sf.logger.Info("storing image", "storer", typeof(sf.s), "url", destination)
 	return sf.s.Store(ctx, r, destination)
+}
+
+// Might consider putting that somewhere else if ever reused.
+func typeof(v any) string {
+	return fmt.Sprintf("%T", v)
 }
