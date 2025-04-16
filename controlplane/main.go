@@ -53,7 +53,6 @@ func main() {
 		r.Get("/health", healthHandler)
 
 		r.Route("/scanner", func(r chi.Router) {
-			r.Use(middleware.RequestID)
 			// Not sure that's the best way to support multiple scanner, but for now it's okay.
 			r.Post("/{scanner:^(trivy|grype)$}/trigger", Make(sh.triggerScanHandler))
 		})

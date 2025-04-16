@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"log/slog"
 	"net/http"
 )
@@ -76,9 +75,8 @@ func (h *scanHandler) triggerScanHandler(w http.ResponseWriter, r *http.Request)
 		})
 	}
 
-	requestId := middleware.GetReqID(r.Context())
 	h.log.Info("should start here a new container/pod that is running the scan of the given image")
-	if err := h.is.Scan(r.Context(), requestId, s, img); err != nil {
+	if err := h.is.Scan(r.Context(), s, img); err != nil {
 		return err
 	}
 
