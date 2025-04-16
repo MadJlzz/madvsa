@@ -19,8 +19,11 @@ spec:
       restartPolicy: Always
       containers:
         - name: madvsa
-          image: ttl.sh/ca2a8f8f-1635-4a42-a31d-a2a2b749384f:1h
+          image: ttl.sh/801c1a6c-df1b-4443-a69b-a55c4b9086f9:1h
           imagePullPolicy: IfNotPresent
+          args:
+            - -orchestration
+            - kubernetes
           ports:
             - containerPort: 3000
               protocol: TCP
