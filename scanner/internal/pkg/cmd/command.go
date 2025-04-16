@@ -42,9 +42,6 @@ func NewCommand(logger *slog.Logger, scanner *vuln.Scanner) *Command {
 func (c *Command) Execute(ctx context.Context) error {
 	flag.Parse()
 
-	c.logger.Info("OK?", "parsed", flag.Parsed(), "args", *c.args)
-	c.logger.Info("hello", "output", *c.args.output, "img", *c.args.image)
-
 	u, err := url.Parse(*c.args.output)
 	if err != nil {
 		return fmt.Errorf("failed to parse output: %s\n", err)
