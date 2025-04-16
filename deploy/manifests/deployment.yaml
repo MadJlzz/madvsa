@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: madvsa
+  labels:
+    app: madvsa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: madvsa
+  template:
+    metadata:
+      name: madvsa
+      labels:
+        app: madvsa
+    spec:
+      serviceAccountName: madvsa
+      restartPolicy: Always
+      containers:
+        - name: madvsa
+          image: ttl.sh/ca2a8f8f-1635-4a42-a31d-a2a2b749384f:1h
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              protocol: TCP
