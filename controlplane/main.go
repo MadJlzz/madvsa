@@ -28,7 +28,6 @@ func init() {
 func main() {
 	flag.Parse()
 	mr := chi.NewRouter()
-	//mr.Use(middleware.RequestID)
 	mr.Use(middleware.Logger)
 	mr.Use(middleware.Recoverer)
 
@@ -38,6 +37,8 @@ func main() {
 	switch orchestrationMode {
 	case "container":
 		is = NewContainerService(socketPath)
+	case "kubernetes":
+		is = NewKubernetesService()
 	default:
 		panic(errors.New("not implemented yet"))
 	}
