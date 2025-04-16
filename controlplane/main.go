@@ -33,10 +33,15 @@ func main() {
 
 	l := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{}))
 
+	cfg, err := GetConfiguration()
+	if err != nil {
+		l.Error("loading configuration failed", "err", err)
+	}
+
 	var is ImageScanner
 	switch orchestrationMode {
 	case "container":
-		is = NewContainerService(socketPath)
+		is = NewContainerService(socketPath, cfg.Scanners)
 	case "kubernetes":
 		is = NewKubernetesService()
 	default:

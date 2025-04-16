@@ -1,0 +1,5 @@
+scanners:
+  trivy:
+    image: "madvsa/trivy:latest"
+  grype:
+    image: "madvsa/grype:latest"
