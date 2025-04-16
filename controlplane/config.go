@@ -6,7 +6,10 @@ import (
 	"os"
 )
 
-const DefaultConfigurationFilepath = "../configs/control-plane.yaml"
+const (
+	DefaultTrivyImage = "madvsa/trivy:latest"
+	DefaultGrypeImage = "madvsa/grype:latest"
+)
 
 type ScannerConfiguration struct {
 	Image string `json:"image"`
@@ -21,10 +24,23 @@ type Configuration struct {
 	Scanners ScannersConfigurations `json:"scanners"`
 }
 
+func newDefaultConfiguration() *Configuration {
+	return &Configuration{
+		Scanners: ScannersConfigurations{
+			Trivy: ScannerConfiguration{
+				Image: DefaultTrivyImage,
+			},
+			Grype: ScannerConfiguration{
+				Image: DefaultGrypeImage,
+			},
+		},
+	}
+}
+
 func GetConfiguration() (*Configuration, error) {
 	filepath, ok := os.LookupEnv("APP_CONFIG_FILE")
 	if !ok {
-		filepath = DefaultConfigurationFilepath
+		return newDefaultConfiguration(), nil
 	}
 
 	f, err := os.Open(filepath)

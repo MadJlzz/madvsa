@@ -36,6 +36,7 @@ func main() {
 	cfg, err := GetConfiguration()
 	if err != nil {
 		l.Error("loading configuration failed", "err", err)
+		os.Exit(1)
 	}
 
 	var is ImageScanner
@@ -68,5 +69,6 @@ func main() {
 	l.Info("starting http server", "port", ":3000")
 	if err := http.ListenAndServe(":3000", mr); err != nil {
 		l.Error("http server error", "err", err)
+		os.Exit(1)
 	}
 }
