@@ -19,8 +19,8 @@ spec:
       restartPolicy: Always
       containers:
         - name: madvsa
-          image: ttl.sh/801c1a6c-df1b-4443-a69b-a55c4b9086f9:1h
-          imagePullPolicy: IfNotPresent
+          image: madjlzz/madvsa-controlplane:latest
+          imagePullPolicy: Always
           args:
             - -orchestration
             - kubernetes
