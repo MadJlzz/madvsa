@@ -41,12 +41,39 @@ func generatePodConfiguration(requestId string, scanner string, image string) *c
 			//	"created-by": "madvsa/controlplane",
 			//},
 		},
+		//
+		//env:
+		//- name: GOOGLE_APPLICATION_CREDENTIALS
+		//valueFrom:
+		//secretKeyRef:
+		//name:
+		//key:
+
 		Spec: corev1.PodSpec{
+			Volumes: []corev1.Volume{
+				{Name: "gcp-credentials", VolumeSource: corev1.VolumeSource{
+					Secret: &corev1.SecretVolumeSource{SecretName: "madvsa-gcs-credentials"},
+				}},
+			},
 			Containers: []corev1.Container{
 				{
 					Name:  "main",
 					Image: "madjlzz/madvsa-trivy:latest",
-					Args:  []string{"-image", image, "-output", fmt.Sprintf("file:///%s.grype.txt", requestId)},
+					Args:  []string{"-image", image, "-output", fmt.Sprintf("gcs://testdju/%s.trivy.txt", requestId)},
+					VolumeMounts: []corev1.VolumeMount{
+						{Name: "gcp-credentials", MountPath: "/gcp/credentials", ReadOnly: true},
+					},
+					Env: []corev1.EnvVar{
+						{Name: "GOOGLE_APPLICATION_CREDENTIALS", Value: "/gcp/credentials/key.json"},
+					},
+					//Env: []corev1.EnvVar{
+					//	{Name: "GOOGLE_APPLICATION_CREDENTIALS", Value: "/gcp/crendetials", ValueFrom: &corev1.EnvVarSource{
+					//		SecretKeyRef: &corev1.SecretKeySelector{
+					//			LocalObjectReference: corev1.LocalObjectReference{Name: "madvsa-gcs-credentials"},
+					//			Key:                  "key.json",
+					//		},
+					//	}},
+					//},
 				},
 			},
 			RestartPolicy: corev1.RestartPolicyNever,
